@@ -1,0 +1,71 @@
+version: '3.7'
+
+networks:
+  test_task_traefik:
+    name: test_task_traefik
+
+volumes:
+  testtask_nest_node_modules:
+  test_task_postgres_data:
+
+services:
+  test_task_traefik:
+    container_name: test_task_traefik
+    image: traefik:2.1
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./_docker/traefik/config:/etc/traefik:ro
+      - ./_docker/certs:/etc/certs:ro
+    networks:
+      - test_task_traefik
+
+  test_task_nest:
+    container_name: test_task_nest
+    restart: unless-stopped
+    build:
+      context: ./
+      dockerfile: _docker/nest/Dockerfile
+      args:
+        NODE_TAG: 18.10
+    volumes:
+      - ./_docker/common/aliases:/root/.profile:ro
+      - ./_docker/common/history:/root/.ash_history
+      - ./src:/var/www/app/src
+      - testtask_nest_node_modules:/var/www/app/node_modules
+    ports:
+      - "9229:9229"
+      - "3000:3000"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.test-task_-node.tls=true
+      - traefik.http.routers.test-task_-node.rule=Host(`${DOCKER_APP_DOMAIN}`)
+      - traefik.http.routers.test-task_-node.middlewares=test-task_-node@file
+      - traefik.http.routers.test-task_-node.service=test-task_-node
+      - traefik.http.services.test-task_-node.loadbalancer.server.port=${APP_PORT}
+      - traefik.http.services.test-task_-node.loadbalancer.server.scheme=http
+    networks:
+      - test_task_traefik
+    depends_on:
+      - test_task_traefik
+
+  test_task_postgres:
+    container_name: test_task_postgres
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${ORM_USERNAME}
+      POSTGRES_PASSWORD: ${ORM_PASSWORD}
+      POSTGRES_DB: ${ORM_DATABASE}
+      PGDATA: /data/postgres
+    volumes:
+      - test_task_postgres_data:/data/postgres
+    ports:
+      - "54320:5432"
+    networks:
+      - test_task_traefik
+    depends_on:
+      - test_task_traefik

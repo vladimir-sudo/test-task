@@ -1,0 +1,39 @@
+http:
+  routers:
+    testtask-traefik:
+      rule: "Host(`testtask-traefik.local`)"
+      service: "api@internal"
+      middlewares:
+        - https-redirect
+        - default-whitelist
+      tls: {}
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+    default-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+    default-whitelist:
+      ipWhiteList:
+        sourceRange:
+        - "172.0.0.0/8"
+        - "127.0.0.1/32"
+        - "192.168.0.0/16"
+    test-task-node:
+      chain:
+        middlewares:
+          - default-headers
+          - https-redirect
+tls:
+  certificates:
+    - certFile: /etc/certs/testtask-traefik.pem
+      keyFile: /etc/certs/testtask-traefik.key.pem
+    - certFile: /etc/certs/testtask.pem
+      keyFile: /etc/certs/testtask.key.pem

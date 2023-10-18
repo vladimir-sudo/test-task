@@ -1,0 +1,28 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type DoImportResultDto {
+    status: String!
+    message: String
+}
+
+type EmployeeRemuneration {
+    uuid: String!
+    id: Int!
+    name: String!
+    surname: String!
+    remunerationPercentage: Float
+    remuneration: Float
+}
+
+type Query {
+    employeesRemunerations(pool: Int): [EmployeeRemuneration!]!
+}
+
+type Mutation {
+    doImport(file: Upload!): DoImportResultDto!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
