@@ -16,9 +16,11 @@ export class EmployeeService {
   async saveBulk(
     employees: Array<EmployeeRecord>,
   ): Promise<Array<EmployeeRecord>> {
-    const departments = employees.map((employee) => employee.department);
+    const departments = employees
+      .map((employee) => employee.department)
+      .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i);
 
-    await this.departmentService.saveBulk([...new Set(departments)]);
+    await this.departmentService.saveBulk(departments);
 
     const entities = employees.map((employee) => {
       return this.employeeRepo.create(employee);
