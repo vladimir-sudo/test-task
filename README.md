@@ -26,7 +26,7 @@ Before starting docker, you need to make sure the following ports are free:
 #### 2.2.1. First deploy
 
 - Run `bash _bash/main.sh deploy` to deploy application
-- After postgres container started need run `bash _bash/main.sh syncOrmSchema` for sync schema
+- After postgres container started need run `bash _bash/main.sh migrate` for sync schema
 
 #### 2.2.2. Up
 

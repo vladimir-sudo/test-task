@@ -21,8 +21,8 @@ function start() {
     docker-compose up -d --build --remove-orphans --force-recreate
 }
 
-function syncOrmSchema() {
-    docker-compose exec test_task_nest npm run typeorm:schema:sync
+function migrate() {
+    docker-compose exec test_task_nest npm run typeorm:migration:run
 }
 
 function down() {
