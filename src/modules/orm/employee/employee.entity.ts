@@ -5,17 +5,17 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Department } from '../department/department.entity';
-import { Statement } from '../statement/statement.entity';
-import { Donation } from '../donation/donation.entity';
+import { Department, DepartmentRecord } from '../department/department.entity';
+import { Statement, StatementRecord } from '../statement/statement.entity';
+import { Donation, DonationRecord } from '../donation/donation.entity';
 
 export interface EmployeeRecord {
   id: number;
   name: string;
   surname: string;
-  department: Department;
-  statements: Statement[];
-  donations: Donation[];
+  department: DepartmentRecord;
+  statements: StatementRecord[];
+  donations: DonationRecord[];
 }
 
 @Entity()
@@ -23,7 +23,7 @@ export class Employee implements EmployeeRecord {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', unique: true })
   id: number;
 
   @Column({ type: 'varchar', length: 300 })
@@ -36,17 +36,17 @@ export class Employee implements EmployeeRecord {
     cascade: true,
     nullable: true,
   })
-  department: Department;
+  department: DepartmentRecord;
 
   @OneToMany(() => Statement, (statement) => statement.employee, {
     cascade: true,
     nullable: true,
   })
-  statements: Statement[];
+  statements: StatementRecord[];
 
   @OneToMany(() => Donation, (donation) => donation.employee, {
     cascade: true,
     nullable: true,
   })
-  donations: Donation[];
+  donations: DonationRecord[];
 }

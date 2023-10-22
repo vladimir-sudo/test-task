@@ -11,7 +11,7 @@ export class Department implements DepartmentRecord {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', unique: true })
   id: number;
 
   @Column({ type: 'varchar', length: 300 })

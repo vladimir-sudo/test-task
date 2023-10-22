@@ -1,11 +1,12 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Employee } from '../employee/employee.entity';
+import { Employee, EmployeeRecord } from '../employee/employee.entity';
 
 export interface DonationRecord {
   id: number;
   amount: number;
   sign: string;
   date: Date;
+  employee: EmployeeRecord;
 }
 
 @Entity()
@@ -13,7 +14,7 @@ export class Donation implements DonationRecord {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', unique: true })
   id: number;
 
   @Column({ type: 'float' })
@@ -26,5 +27,5 @@ export class Donation implements DonationRecord {
   date: Date;
 
   @ManyToOne(() => Employee, (employee) => employee.donations)
-  employee: Employee;
+  employee: EmployeeRecord;
 }

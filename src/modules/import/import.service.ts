@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, Injectable} from '@nestjs/common';
 import { ReadStream } from 'fs';
 import { FileUpload } from 'graphql-upload';
 import { ImportFileBlocksEnum } from './enum/import-file-blocks.enum';
@@ -13,7 +13,7 @@ import {
 } from './type/employee.type';
 import { ImportEntitiesEnum } from './enum/import-entities.enum';
 import { EmployeeService } from '../orm/employee/employee.service';
-import { EmployeeRecord } from '../orm/employee/employee.entity';
+import {HttpErrorByCode} from "@nestjs/common/utils/http-error-by-code.util";
 
 @Injectable()
 export class ImportService {
@@ -126,9 +126,7 @@ export class ImportService {
     return parsedData;
   }
 
-  private async importRates(
-    rates: Array<RateType>,
-  ): Promise<Array<RateRecord>> {
+  private async importRates(rates: Array<RateType>): Promise<RateRecord[]> {
     const preparedRates = rates
       .filter((rate) => rate.name === ImportEntitiesEnum.rate)
       .map((rate) => {
@@ -142,9 +140,7 @@ export class ImportService {
     return this.rateService.saveBulk(preparedRates);
   }
 
-  private async importEmployees(
-    employees: Array<EmployeeType>,
-  ): Promise<Array<EmployeeRecord>> {
+  private async importEmployees(employees: Array<EmployeeType>): Promise<void> {
     const prepareEmployees = employees
       .filter((employee) => employee.name === ImportEntitiesEnum.employee)
       .map((employee) => {
@@ -200,11 +196,13 @@ export class ImportService {
         return prepareEmployee;
       });
 
-    return await this.employeeService.saveBulk(prepareEmployees);
+    return await this.employeeService.saveEmployees(prepareEmployees);
   }
 
-  async doImport({ createReadStream }: FileUpload): Promise<void> {
-    const fileContent = await this.streamToString(createReadStream());
+  public async doImport(file: FileUpload): Promise<void> {
+    if (file.mimetype !== 'text/plain') throw new Error('Invalid file format');
+
+    const fileContent = await this.streamToString(file.createReadStream());
     const fileParsedData = this.parseFileDataRecursive(fileContent);
 
     for (const data of fileParsedData) {
